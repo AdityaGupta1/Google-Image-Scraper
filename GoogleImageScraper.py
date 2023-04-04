@@ -60,7 +60,7 @@ class GoogleImageScraper():
         self.number_of_images = number_of_images
         self.webdriver_path = webdriver_path
         self.image_path = image_path
-        self.url = "https://www.google.com/search?q=%s+site:wikimedia.org+OR+site:inaturalist.org&source=lnms&tbm=isch&sa=X&ved=2ahUKEwie44_AnqLpAhUhBWMBHUFGD90Q_AUoAXoECBUQAw&biw=1920&bih=947"%(search_key)
+        self.url = "https://www.google.com/search?q=%s+site:wikipedia.org+OR+site:wikimedia.org+OR+site:inaturalist.org&source=lnms&tbm=isch&sa=X&ved=2ahUKEwie44_AnqLpAhUhBWMBHUFGD90Q_AUoAXoECBUQAw&biw=1920&bih=947"%(search_key)
         self.headless=headless
         self.min_resolution = min_resolution
         self.max_resolution = max_resolution
@@ -118,6 +118,10 @@ class GoogleImageScraper():
 
                     if ('static.inaturalist.org' in src_link):
                         print("CRINGE STATIC IMAGE")
+                        break
+
+                    if ('base64' in src_link):
+                        print("CRINGE BASE64 IMAGE")
                         break
 
                     if(("http" in src_link) and (not "encrypted" in src_link)):

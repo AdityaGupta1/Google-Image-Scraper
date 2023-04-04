@@ -52,7 +52,7 @@ if __name__ == "__main__":
     for file_num in range(file_num_min, file_num_max + 1):
         images_dict.clear()
 
-        skip = range(num_rows_per_file + 1) if file_num != 1 else None
+        skip = range((num_rows_per_file) * (file_num - 1) + 1) if file_num != 1 else None
 
         in_csv_loc = os.path.normpath(os.path.join(os.getcwd(), 'in/entities.csv'))
         in_df = pandas.read_csv(in_csv_loc, skiprows=skip, nrows=num_rows_per_file, index_col=0, header=None)
@@ -72,7 +72,7 @@ if __name__ == "__main__":
         min_resolution = (0, 0)             # Minimum desired image resolution
         max_resolution = (9999, 9999)       # Maximum desired image resolution
         max_missed = 1000                   # Max number of failed images before exit
-        number_of_workers = 10              # Number of "workers" used
+        number_of_workers = 12              # Number of "workers" used
         keep_filenames = False              # Keep original URL image filenames
 
         #Run each search_key in a separate thread
