@@ -27,25 +27,21 @@ import patch
 
 class GoogleImageScraper():
     def __init__(self, webdriver_path, image_path, search_key="cat", number_of_images=1, headless=True, min_resolution=(0, 0), max_resolution=(1920, 1080), max_missed=10):
-        #check parameter types
-        image_path = os.path.join(image_path, search_key)
-        if (type(number_of_images)!=int):
-            print("[Error] Number of images must be integer value.")
-            return
-        if not os.path.exists(image_path):
-            print("[INFO] Image path not found. Creating a new folder.")
-            os.makedirs(image_path)
+        # if (type(number_of_images)!=int):
+        #     print("[Error] Number of images must be integer value.")
+        #     return
             
-        #check if chromedriver is installed
-        if (not os.path.isfile(webdriver_path)):
-            is_patched = patch.download_lastest_chromedriver()
-            if (not is_patched):
-                exit("[ERR] Please update the chromedriver.exe in the webdriver folder according to your chrome version:https://chromedriver.chromium.org/downloads")
+        # #check if chromedriver is installed
+        # if (not os.path.isfile(webdriver_path)):
+        #     is_patched = patch.download_lastest_chromedriver()
+        #     if (not is_patched):
+        #         exit("[ERR] Please update the chromedriver.exe in the webdriver folder according to your chrome version:https://chromedriver.chromium.org/downloads")
 
         for i in range(1):
             try:
                 #try going to www.google.com
                 options = Options()
+                options.add_argument('log-level=3')
                 if(headless):
                     options.add_argument('--headless')
                 driver = webdriver.Chrome(webdriver_path, chrome_options=options)
@@ -64,7 +60,7 @@ class GoogleImageScraper():
         self.number_of_images = number_of_images
         self.webdriver_path = webdriver_path
         self.image_path = image_path
-        self.url = "https://www.google.com/search?q=%s&source=lnms&tbm=isch&sa=X&ved=2ahUKEwie44_AnqLpAhUhBWMBHUFGD90Q_AUoAXoECBUQAw&biw=1920&bih=947"%(search_key)
+        self.url = "https://www.google.com/search?q=%s+site:wikimedia.org+OR+site:inaturalist.org&source=lnms&tbm=isch&sa=X&ved=2ahUKEwie44_AnqLpAhUhBWMBHUFGD90Q_AUoAXoECBUQAw&biw=1920&bih=947"%(search_key)
         self.headless=headless
         self.min_resolution = min_resolution
         self.max_resolution = max_resolution
@@ -83,7 +79,7 @@ class GoogleImageScraper():
         count = 0
         missed_count = 0
         self.driver.get(self.url)
-        time.sleep(3)
+        time.sleep(1)
         indx = 1
         while self.number_of_images > count:
             try:
@@ -99,20 +95,40 @@ class GoogleImageScraper():
 
             try:
                 #select image from the popup
-                time.sleep(1)
-                class_names = ["n3VNCb"]
-                images = [self.driver.find_elements(By.CLASS_NAME, class_name) for class_name in class_names if len(self.driver.find_elements(By.CLASS_NAME, class_name)) != 0 ][0]
+                time.sleep(0.5)
+                class_names = ['n3VNCb', 'pT0Scc', 'KAlRDb']
+                
+                i = 1
+                class_elements_list = None;
+                while True:
+                    class_elements_list = [self.driver.find_elements(By.CLASS_NAME, class_name) for class_name in class_names if len(self.driver.find_elements(By.CLASS_NAME, class_name)) != 0]
+
+                    if class_elements_list != None:
+                        break;
+
+                    print('try ' + str(i))
+                    i += 1
+                    time.sleep(0.5)
+
+
+                images = class_elements_list[0]
                 for image in images:
                     #only download images that starts with http
                     src_link = image.get_attribute("src")
-                    if(("http" in  src_link) and (not "encrypted" in src_link)):
+
+                    if ('static.inaturalist.org' in src_link):
+                        print("CRINGE STATIC IMAGE")
+                        break
+
+                    if(("http" in src_link) and (not "encrypted" in src_link)):
                         print(
                             f"[INFO] {self.search_key} \t #{count} \t {src_link}")
                         image_urls.append(src_link)
                         count +=1
                         break
-            except Exception:
+            except Exception as e:
                 print("[INFO] Unable to get link")
+                print(e)
 
             try:
                 #scroll page to load next image
