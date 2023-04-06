@@ -120,10 +120,6 @@ class GoogleImageScraper():
                         print("CRINGE STATIC IMAGE")
                         break
 
-                    if ('base64' in src_link):
-                        print("CRINGE BASE64 IMAGE")
-                        break
-
                     if(("http" in src_link) and (not "encrypted" in src_link)):
                         print(
                             f"[INFO] {self.search_key} \t #{count} \t {src_link}")
